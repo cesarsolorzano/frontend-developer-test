@@ -112,5 +112,48 @@ describe('BlockGrid', () => {
     blockGrid.removeConnections(testCoords[0][0]);
 
     assert.deepEqual(blockGrid.grid, testCoords);
-  })
+  });
+
+  it('should render and remove connected blocks', () => {
+    const testCoords = [
+      [new Block(0, 0, 1), new Block(0, 1, 1), new Block(0, 2, 2)],
+      [new Block(1, 0, 1), new Block(1, 1, 2), new Block(1, 2, 0)],
+      [new Block(2, 0, 0), new Block(2, 1, 0), new Block(2, 2, 1)],
+    ];
+
+    const gridEl = document.createElement('div');
+    gridEl.id = 'gridEl';
+    document.body.appendChild(gridEl);
+
+    const blockGrid = new BlockGrid(testCoords, 3, 3);
+    blockGrid.render();
+  
+    blockGrid.removeInGrid(blockGrid.grid[0][0]);
+    assert.deepEqual(blockGrid.grid, [
+      [new Block(0, 0, 2), null, null],
+      [new Block(1, 0, 2), new Block(1, 1, 0), null],
+      [new Block(2, 0, 0), new Block(2, 1, 0), new Block(2, 2, 1)],
+    ]);
+
+    blockGrid.removeInGrid(blockGrid.grid[0][0]);
+    assert.deepEqual(blockGrid.grid, [
+      [null, null, null],
+      [new Block(1, 0, 0), null, null],
+      [new Block(2, 0, 0), new Block(2, 1, 0), new Block(2, 2, 1)],
+    ]);
+
+    blockGrid.removeInGrid(blockGrid.grid[1][0]);
+    assert.deepEqual(blockGrid.grid, [
+      [null, null, null],
+      [null, null, null],
+      [new Block(2, 0, 1), null, null],
+    ]);
+
+    blockGrid.removeInGrid(blockGrid.grid[2][0]);
+    assert.deepEqual(blockGrid.grid, [
+      [null, null, null],
+      [null, null, null],
+      [new Block(2, 0, 1), null, null],
+    ]); 
+  });
 });
