@@ -50,8 +50,71 @@ export class BlockGrid {
     return this;
   }
 
+  removeConnection(x, y, colour, items = []) {
+    const out = [];
+
+    if (!this.grid[x][y]) {
+      return;
+    }
+
+    out.push(this.grid[x][y])
+
+    this.grid[x][y] = null;
+
+    if (x < MAX_X - 1 && this.grid[x + 1][y] && this.grid[x + 1][y].colour === colour) {
+      out.push(...this.removeConnection(x + 1, y, colour));
+    }
+    if (x > 0 && this.grid[x - 1][y] && this.grid[x - 1][y].colour === colour) {
+      out.push(...this.removeConnection(x - 1, y, colour));
+    }
+    if (y < MAX_Y - 1 && this.grid[x][y + 1] && this.grid[x][y + 1].colour === colour) {
+      out.push(...this.removeConnection(x, y + 1, colour));
+    }
+    if (y > 0 && this.grid[x][y - 1] && this.grid[x][y - 1].colour === colour) {
+      out.push(...this.removeConnection(x, y - 1, colour));
+    }
+
+    return items.concat(out)
+  }
+
+  removeConnections(block) {
+    const { x, y, colour } = block;
+    const blocks = this.removeConnection(x, y, colour);
+
+    if (blocks.length > 1) {
+      return blocks;
+    } else {
+      this.grid[x][y] = block;
+    }
+    return [];
+  }
+
+  removeInGrid(block) {
+    const blocks = this.removeConnections(block);
+
+    blocks.forEach(block => {
+      const blockEl = document.getElementById(`block_${block.x}x${block.y}`);
+      blockEl.parentNode.removeChild(blockEl);
+    });
+    this.move();
+  }
+
+  move() {
+    this.grid = this.grid.map((col, index) => {
+      const blocks = col.filter(block => !!block);
+      const padding = new Array(MAX_X - blocks.length).fill(null);
+      return [...blocks, ...padding].map((b, index) => {
+        if (b) {
+          document.getElementById(`block_${b.x}x${b.y}`).id = `block_${b.x}x${index}`;
+          b.y = index;
+        }
+        return b;
+      });
+    });
+  }
+
   blockClicked(e, block) {
-    console.log(e, block);
+    this.removeInGrid(block);
   }
 }
 
