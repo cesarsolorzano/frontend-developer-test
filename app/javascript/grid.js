@@ -3,20 +3,27 @@ const MAX_X = 10;
 const MAX_Y = 10;
 
 export class Block {
-  constructor(x, y) {
+  constructor(x, y, colour = Math.floor(Math.random() * COLOURS.length)) {
     this.x = x;
     this.y = y;
-    this.colour = COLOURS[Math.floor(Math.random() * COLOURS.length)];
+    this.colour = COLOURS[colour];
   }
 }
 
 export class BlockGrid {
-  constructor() {
+  constructor(grid = null, maxX = MAX_X, maxY = MAX_Y) {
     this.grid = [];
+    this.maxX = maxX;
+    this.maxY = maxY;
 
-    for (let x = 0; x < MAX_X; x++) {
+    if (grid) {
+      this.grid = grid;
+      return this;
+    }
+
+    for (let x = 0; x < this.maxX; x++) {
       let col = [];
-      for (let y = 0; y < MAX_Y; y++) {
+      for (let y = 0; y < this.maxY; y++) {
         col.push(new Block(x, y));
       }
 
@@ -27,14 +34,14 @@ export class BlockGrid {
   }
 
   render(el = document.querySelector('#gridEl')) {
-    for (let x = 0; x < MAX_X; x++) {
+    for (let x = 0; x < this.maxX; x++) {
       let id = 'col_' + x;
       let colEl = document.createElement('div');
       colEl.className = 'col';
       colEl.id = id;
       el.appendChild(colEl);
 
-      for (let y = MAX_Y - 1; y >= 0; y--) {
+      for (let y = this.maxY - 1; y >= 0; y--) {
         let block = this.grid[x][y],
           id = `block_${x}x${y}`,
           blockEl = document.createElement('div');
@@ -61,13 +68,13 @@ export class BlockGrid {
 
     this.grid[x][y] = null;
 
-    if (x < MAX_X - 1 && this.grid[x + 1][y] && this.grid[x + 1][y].colour === colour) {
+    if (x < this.maxX - 1 && this.grid[x + 1][y] && this.grid[x + 1][y].colour === colour) {
       out.push(...this.removeConnection(x + 1, y, colour));
     }
     if (x > 0 && this.grid[x - 1][y] && this.grid[x - 1][y].colour === colour) {
       out.push(...this.removeConnection(x - 1, y, colour));
     }
-    if (y < MAX_Y - 1 && this.grid[x][y + 1] && this.grid[x][y + 1].colour === colour) {
+    if (y < this.maxY - 1 && this.grid[x][y + 1] && this.grid[x][y + 1].colour === colour) {
       out.push(...this.removeConnection(x, y + 1, colour));
     }
     if (y > 0 && this.grid[x][y - 1] && this.grid[x][y - 1].colour === colour) {
@@ -102,7 +109,7 @@ export class BlockGrid {
   move() {
     this.grid = this.grid.map((col, index) => {
       const blocks = col.filter(block => !!block);
-      const padding = new Array(MAX_X - blocks.length).fill(null);
+      const padding = new Array(this.maxX - blocks.length).fill(null);
       return [...blocks, ...padding].map((b, index) => {
         if (b) {
           document.getElementById(`block_${b.x}x${b.y}`).id = `block_${b.x}x${index}`;
