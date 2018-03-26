@@ -57,31 +57,31 @@ export class BlockGrid {
     return this;
   }
 
-  removeConnection(x, y, colour, items = []) {
-    const out = [];
+  removeConnection(x, y, colour) {
+    const blocks = [];
 
     if (!this.grid[x][y]) {
       return;
     }
 
-    out.push(this.grid[x][y])
+    blocks.push(this.grid[x][y])
 
     this.grid[x][y] = null;
 
     if (x < this.maxX - 1 && this.grid[x + 1][y] && this.grid[x + 1][y].colour === colour) {
-      out.push(...this.removeConnection(x + 1, y, colour));
+      blocks.push(...this.removeConnection(x + 1, y, colour));
     }
     if (x > 0 && this.grid[x - 1][y] && this.grid[x - 1][y].colour === colour) {
-      out.push(...this.removeConnection(x - 1, y, colour));
+      blocks.push(...this.removeConnection(x - 1, y, colour));
     }
     if (y < this.maxY - 1 && this.grid[x][y + 1] && this.grid[x][y + 1].colour === colour) {
-      out.push(...this.removeConnection(x, y + 1, colour));
+      blocks.push(...this.removeConnection(x, y + 1, colour));
     }
     if (y > 0 && this.grid[x][y - 1] && this.grid[x][y - 1].colour === colour) {
-      out.push(...this.removeConnection(x, y - 1, colour));
+      blocks.push(...this.removeConnection(x, y - 1, colour));
     }
 
-    return items.concat(out)
+    return blocks;
   }
 
   removeConnections(block) {
